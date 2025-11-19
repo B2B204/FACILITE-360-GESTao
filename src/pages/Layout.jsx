@@ -2,72 +2,73 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { User } from "@/api/entities";
-import { TeamMember } from "@/api/entities";
-import { BRAND } from "@/components/common/Branding";
-import BrandLogo from "@/components/common/BrandLogo";
-import {
-  Building2, LayoutDashboard, FileText, Users, DollarSign, BarChart3,
-  Menu, X, LogOut, Settings, Bell, ChevronDown, Package, Calculator,
-  ClipboardCheck, ShoppingCart, ShieldCheck, Banknote, HeartPulse, Mail, Award,
-  Briefcase, HandCoins, UsersRound, LineChart, LifeBuoy, Shirt, Wrench
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import AccessBlocked from "./components/AccessBlocked";
-import { hasPageAccess } from '@/components/permissions';
-import AccessDeniedPage from "./pages/AccessDeniedPage";
+// src/pages/Layout.jsx
+import React from "react";
+import { Outlet, useLocation, Link } from "react-router-dom";
+import { DropdownMenuTrigger } from "@components/ui/dropdown-menu";
+import { hasPageAccess } from "@components/permissions";
+import AccessDeniedPage from "./AccessDeniedPage";
 
-const navItems = [
-  { type: "link", title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-  { type: "link", title: "Reconhecimentos", url: createPageUrl("Recognitions"), icon: Award },
+// Menu principal — ajuste como quiser
+const menu = [
+  { name: "Dashboard", path: "/dashboard" },
+  { name: "Financeiro", path: "/financial" },
+  { name: "Contratos", path: "/contracts" },
+  { name: "Funcionários", path: "/employees" },
+  { name: "Ofícios", path: "/oficios" },
+  { name: "CRM", path: "/crm" },
+];
 
-  {
-    type: "group",
-    title: "Comercial",
-    icon: LineChart,
-    subItems: [
-      { title: "CRM", url: createPageUrl("CRM"), icon: UsersRound },
-      { title: "Contratos", url: createPageUrl("Contracts"), icon: FileText },
-      { title: "Reajuste Contratual", url: createPageUrl("ReajusteContratual"), icon: ClipboardCheck },
-      { title: "Seguros e Laudos", url: createPageUrl("SegurosLaudos"), icon: HeartPulse },
-    ],
-  },
+export default function Layout({ user }) {
+  const location = useLocation();
+  const pageName =
+    menu.find((item) => item.path === location.pathname)?.name || "Sistema";
 
-  {
-    type: "group",
-    title: "RH",
-    icon: Users,
-    subItems: [
-      { title: "Funcionários", url: createPageUrl("Employees"), icon: Users },
-      { title: "Recibos VA/VT", url: createPageUrl("AllowanceReceipts"), icon: Banknote },
-    ],
-  },
+  // Proteção de página
+  if (!hasPageAccess(user, location.pathname)) {
+    return <AccessDeniedPage />;
+  }
 
-  {
-    type: "group",
-    title: "Financeiro",
-    icon: HandCoins,
-    subItems: [
-      { title: "Financeiro", url: createPageUrl("Financial"), icon: DollarSign },
-      { title: "Contas a Receber", url: createPageUrl("AccountsReceivable"), icon: Banknote },
-      { title: "Custos Indiretos", url: createPageUrl("IndirectCosts"), icon: Calculator },
-    ],
-  },
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-sm p-4 flex flex-col">
+        <h1 className="text-xl font-semibold mb-6">FACILITE-360 Gestão</h1>
 
-  {
-    type: "group",
-    title: "Compras",
-    icon: ShoppingCart,
-    subItems: [
+        <nav className="flex flex-col gap-2">
+          {menu.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`px-3 py-2 rounded text-sm ${
+                location.pathname === item.path
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Conteúdo */}
+      <main className="flex-1 p-6 overflow-auto">
+        <header className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold">{pageName}</h2>
+
+          <DropdownMenuTrigger>
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
+              {user?.name?.[0] || "U"}
+            </div>
+          </DropdownMenuTrigger>
+        </header>
+
+        <Outlet />
+      </main>
+    </div>
+  );
+}
       { title: "Uniformes", url: createPageUrl("Uniforms"), icon: Shirt },
       { title: "Patrimônio", url: createPageUrl("Patrimony"), icon: ShieldCheck },
       { title: "Compras", url: createPageUrl("Supplies"), icon: Package },
