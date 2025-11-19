@@ -26,76 +26,77 @@ export default function Layout({ user }) {
 
   // Proteção de página
   if (!hasPageAccess(user, location.pathname)) {
-    return <AccessDeniedPage />;
-  }
+    // src/pages/Layout.jsx
+    import React from "react";
+    import { Outlet, useLocation, Link } from "react-router-dom";
+    import { DropdownMenuTrigger } from "@components/ui/dropdown-menu";
+    import { hasPageAccess } from "@components/permissions";
+    import AccessDeniedPage from "./AccessDeniedPage";
 
-  return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-sm p-4 flex flex-col">
-        <h1 className="text-xl font-semibold mb-6">FACILITE-360 Gestão</h1>
+    // Menu lateral
+    const menu = [
+      { name: "Dashboard", path: "/dashboard" },
+      { name: "Financeiro", path: "/financial" },
+      { name: "Contratos", path: "/contracts" },
+      { name: "Funcionários", path: "/employees" },
+      { name: "Ofícios", path: "/oficios" },
+      { name: "CRM", path: "/crm" },
+    ];
 
-        <nav className="flex flex-col gap-2">
-          {menu.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`px-3 py-2 rounded text-sm ${
-                location.pathname === item.path
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-      </aside>
+    export default function Layout({ user }) {
+      const location = useLocation();
 
-      {/* Conteúdo */}
-      <main className="flex-1 p-6 overflow-auto">
-        <header className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">{pageName}</h2>
+      const pageName =
+        menu.find((item) => item.path === location.pathname)?.name ||
+        "Sistema";
 
-          <DropdownMenuTrigger>
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
-              {user?.name?.[0] || "U"}
-            </div>
-          </DropdownMenuTrigger>
-        </header>
+      // Verificação de permissão
+      if (!hasPageAccess(user, location.pathname)) {
+        return <AccessDeniedPage />;
+      }
 
-        <Outlet />
-      </main>
-    </div>
-  );
-}
-      { title: "Uniformes", url: createPageUrl("Uniforms"), icon: Shirt },
-      { title: "Patrimônio", url: createPageUrl("Patrimony"), icon: ShieldCheck },
-      { title: "Compras", url: createPageUrl("Supplies"), icon: Package },
-    ],
-  },
+      return (
+        <div className="flex h-screen bg-gray-100">
+      
+          {/* Sidebar */}
+          <aside className="w-64 bg-white shadow-sm p-4 flex flex-col">
+            <h1 className="text-xl font-semibold mb-6">FACILITE-360 Gestão</h1>
 
-  {
-    type: "group",
-    title: "Gestão Operacional",
-    icon: ClipboardCheck,
-    subItems: [
-      { title: "OS", url: createPageUrl("OS"), icon: Wrench },
-    ],
-  },
+            <nav className="flex flex-col gap-2">
+              {menu.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`px-3 py-2 rounded text-sm ${
+                    location.pathname === item.path
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </aside>
 
-  { type: "link", title: "Ofícios/Comunicados", url: createPageUrl("Oficios"), icon: Mail },
-  { type: "link", title: "Medição", url: createPageUrl("Measurements"), icon: ClipboardCheck },
+          {/* Conteúdo Principal */}
+          <main className="flex-1 p-6 overflow-auto">
+            <header className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">{pageName}</h2>
 
-  {
-    type: "group",
-    title: "Análise e Outros",
-    icon: BarChart3,
-    subItems: [
-      { title: "Alertas", url: createPageUrl("Alerts"), icon: Bell },
-      { title: "Relatórios", url: createPageUrl("Reports"), icon: BarChart3 },
-      { title: "Marketplace", url: createPageUrl("Marketplace"), icon: ShoppingCart },
-      { title: "Marketing", url: createPageUrl("Marketing"), icon: LineChart },
+              <DropdownMenuTrigger>
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
+                  {user?.name?.[0] || "U"}
+                </div>
+              </DropdownMenuTrigger>
+            </header>
+
+            <Outlet />
+          </main>
+
+        </div>
+      );
+    }
     ],
   },
 
