@@ -63,71 +63,70 @@ export default function Layout({ user }) {
             <h1 className="text-xl font-semibold mb-6">FACILITE-360 Gestão</h1>
 
             <nav className="flex flex-col gap-2">
-              {menu.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-3 py-2 rounded text-sm ${
-                    location.pathname === item.path
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </aside>
+              // src/pages/Layout.jsx
+              import React from "react";
+              import { Outlet, useLocation, Link } from "react-router-dom";
+              import { DropdownMenuTrigger } from "@components/ui/dropdown-menu";
+              import { hasPageAccess } from "@components/permissions";
+              import AccessDeniedPage from "./AccessDeniedPage";
 
-          {/* Conteúdo Principal */}
-          <main className="flex-1 p-6 overflow-auto">
-            <header className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">{pageName}</h2>
+              const menu = [
+                { name: "Dashboard", path: "/dashboard" },
+                { name: "Financeiro", path: "/financial" },
+                { name: "Contratos", path: "/contracts" },
+                { name: "Funcionários", path: "/employees" },
+                { name: "Ofícios", path: "/oficios" },
+                { name: "CRM", path: "/crm" },
+              ];
 
-              <DropdownMenuTrigger>
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
-                  {user?.name?.[0] || "U"}
-                </div>
-              </DropdownMenuTrigger>
-            </header>
+              export default function Layout({ user }) {
+                const location = useLocation();
+                const pageName =
+                  menu.find((item) => item.path === location.pathname)?.name || "Sistema";
 
-            <Outlet />
-          </main>
+                if (!hasPageAccess(user, location.pathname)) {
+                  return <AccessDeniedPage />;
+                }
 
-        </div>
-      );
-    }
-    ],
-  },
+                return (
+                  <div className="flex h-screen bg-gray-100">
 
-  { type: "link", title: "Suporte", url: createPageUrl("Support"), icon: LifeBuoy },
-];
+                    <aside className="w-64 bg-white shadow-sm p-4 flex flex-col">
+                      <h1 className="text-xl font-semibold mb-6">FACILITE-360 Gestão</h1>
 
+                      <nav className="flex flex-col gap-2">
+                        {menu.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={`px-3 py-2 rounded text-sm ${
+                              location.pathname === item.path
+                                ? "bg-blue-600 text-white"
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </nav>
+                    </aside>
 
-export default function Layout({ children, currentPageName }) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const [openMenu, setOpenMenu] = useState(null);
+                    <main className="flex-1 p-6 overflow-auto">
+                      <header className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-semibold">{pageName}</h2>
 
-  useEffect(() => {
-    // Abrir automaticamente o grupo que contém a página ativa
-    const activeMenu = navItems.find(
-      (item) => item.subItems && item.subItems.some((sub) => sub.url === location.pathname)
-    );
-    if (activeMenu) setOpenMenu(activeMenu.title);
-  }, [location.pathname]);
+                        <DropdownMenuTrigger>
+                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
+                            {user?.name?.[0] || "U"}
+                          </div>
+                        </DropdownMenuTrigger>
+                      </header>
 
-  useEffect(() => {
-    // Páginas públicas não precisam de autenticação
-    const publicPages = ['AcceptInvite'];
-    if (publicPages.includes(currentPageName)) {
-      setIsLoadingUser(false);
-      return;
-    }
+                      <Outlet />
+                    </main>
+                  </div>
+                );
+              }
     loadUser();
   }, [currentPageName]);
 
