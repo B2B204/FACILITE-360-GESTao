@@ -20,7 +20,6 @@ export default function OficioForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aqui você pode integrar com API ou só fazer um console.log por enquanto
     console.log({
       assunto,
       destinatario,
@@ -62,7 +61,8 @@ export default function OficioForm() {
           <label className="block text-sm font-medium mb-1">
             Texto do ofício
           </label>
-          {/* Aqui substituímos o ReactQuill por um textarea simples */}
+
+          {/* Removido ReactQuill (causava erro). Agora textarea simples. */}
           <textarea
             className="w-full border rounded px-3 py-2 text-sm min-h-[180px]"
             value={corpo}
